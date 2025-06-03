@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.db
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# VSCode / PyCharm / JetBrains
+.vscode/
+.idea/
+
+# Environment / Virtualenv
+.env
+.venv/
+env/
+venv/
+ENV/
+*.env
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Streamlit temp files
+.streamlit/config.toml
+.streamlit/secrets.toml
+
+# PDF outputs (optional — if generated locally)
+*.pdf

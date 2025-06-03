@@ -1,0 +1,418 @@
+Student ID,Course,Day,Time,Slot #
+412004541,CS- 340-Introduction to Database Systems,Day 2,AM,2
+442004401,CS- 340-Introduction to Database Systems,Day 2,AM,2
+451001731,CS- 340-Introduction to Database Systems,Day 2,AM,2
+431002351,CS- 340-Introduction to Database Systems,Day 2,AM,2
+431002571,CS- 340-Introduction to Database Systems,Day 2,AM,2
+451003561,CS- 340-Introduction to Database Systems,Day 2,AM,2
+441002121,CS- 340-Introduction to Database Systems,Day 2,AM,2
+412004541,CS- 344-Advanced Programming,Day 1,AM,0
+442004401,CS- 344-Advanced Programming,Day 1,AM,0
+431002351,CS- 344-Advanced Programming,Day 1,AM,0
+451001731,CS- 344-Advanced Programming,Day 1,AM,0
+431002571,CS- 344-Advanced Programming,Day 1,AM,0
+451003561,CS- 344-Advanced Programming,Day 1,AM,0
+411002651,CS- 344-Advanced Programming,Day 1,AM,0
+441002121,CS- 344-Advanced Programming,Day 1,AM,0
+441000201,CS- 432-Software Security Engineering,Day 4,AM,6
+402004251,CS- 432-Software Security Engineering,Day 4,AM,6
+411003071,CS- 432-Software Security Engineering,Day 4,AM,6
+441003441,CS- 432-Software Security Engineering,Day 4,AM,6
+411001091,CS- 432-Software Security Engineering,Day 4,AM,6
+441003371,CS- 432-Software Security Engineering,Day 4,AM,6
+411002111,CS- 432-Software Security Engineering,Day 4,AM,6
+431000621,CS- 432-Software Security Engineering,Day 4,AM,6
+411001091,CS- 433-Internet Technologies,Day 3,AM,4
+451003161,CS- 433-Internet Technologies,Day 3,AM,4
+432004221,CS- 474-Software Design and Architecture,Day 4,AM,6
+431001111,CS- 474-Software Design and Architecture,Day 4,AM,6
+431001571,CS- 474-Software Design and Architecture,Day 4,AM,6
+441002351,CS- 474-Software Design and Architecture,Day 4,AM,6
+432004221,CS- 478-Software Construction Laboratory,Day 6,AM,10
+411002151,CS- 478-Software Construction Laboratory,Day 6,AM,10
+432004361,CS- 478-Software Construction Laboratory,Day 6,AM,10
+441002121,CS- 478-Software Construction Laboratory,Day 6,AM,10
+412004231,CS- 480-Advanced Web Applications Engineering,Day 2,AM,2
+411003071,CS- 480-Advanced Web Applications Engineering,Day 2,AM,2
+431001111,CS- 480-Advanced Web Applications Engineering,Day 2,AM,2
+441003441,CS- 480-Advanced Web Applications Engineering,Day 2,AM,2
+412003641,CS- 480-Advanced Web Applications Engineering,Day 2,AM,2
+431001571,CS- 480-Advanced Web Applications Engineering,Day 2,AM,2
+411002151,CS- 480-Advanced Web Applications Engineering,Day 2,AM,2
+441003481,CS- 490-Internship,Day 3,AM,4
+441002121,CS- 490-Internship,Day 3,AM,4
+411002801,CS- 490-Internship,Day 3,AM,4
+451000251,CS- 498-Senior Project I,Day 3,AM,4
+441000201,CS- 498-Senior Project I,Day 3,AM,4
+411002151,CS- 498-Senior Project I,Day 3,AM,4
+451003551,CS- 498-Senior Project I,Day 3,AM,4
+432004361,CS- 498-Senior Project I,Day 3,AM,4
+411002111,CS- 498-Senior Project I,Day 3,AM,4
+411002651,CS- 498-Senior Project I,Day 3,AM,4
+432004951,CS- 499-Senior Project II,Day 1,AM,0
+412004231,CS- 499-Senior Project II,Day 1,AM,0
+411003071,CS- 499-Senior Project II,Day 1,AM,0
+412003391,CS- 499-Senior Project II,Day 1,AM,0
+412003541,CS- 499-Senior Project II,Day 1,AM,0
+441003441,CS- 499-Senior Project II,Day 1,AM,0
+411001091,CS- 499-Senior Project II,Day 1,AM,0
+412003641,CS- 499-Senior Project II,Day 1,AM,0
+431002141,CS- 499-Senior Project II,Day 1,AM,0
+432004221,CS- 499-Senior Project II,Day 1,AM,0
+431000621,CS- 499-Senior Project II,Day 1,AM,0
+462005721,ENGL. 101-English I,Day 2,AM,2
+462005631,ENGL. 101-English I,Day 2,AM,2
+461002581,ENGL_ 10-English Writing I,Day 1,AM,0
+452005231,ENGL_ 10-English Writing I,Day 1,AM,0
+452004901,ENGL_ 10-English Writing I,Day 1,AM,0
+441000861,ENGL_ 10-English Writing I,Day 1,AM,0
+462005421,ENGL. 102-English II,Day 2,AM,2
+462006181,ENGL. 102-English II,Day 2,AM,2
+441001221,ENGL- 103-English Writing II,Day 5,AM,8
+411003071,ENGL- 103-English Writing II,Day 5,AM,8
+431002571,ENGL- 103-English Writing II,Day 5,AM,8
+461002131,ENGL- 103-English Writing II,Day 5,AM,8
+411002651,ENGL- 103-English Writing II,Day 5,AM,8
+431002351,ENGL- 103-English Writing II,Day 5,AM,8
+451001211,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+451000801,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+431001111,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+462006011,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+432004261,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+451001221,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+431001571,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+411002151,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+451003281,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+432004221,ETHC- 303-Ethical and Social Aspects of Computer,Day 5,AM,8
+451000251,MATH- 26-Introduction to Operations Research,Day 5,AM,8
+451001161,MATH- 26-Introduction to Operations Research,Day 5,AM,8
+462004471,MATH- 26-Introduction to Operations Research,Day 5,AM,8
+462004921,MATH- 26-Introduction to Operations Research,Day 5,AM,8
+411001091,MATH- 26-Introduction to Operations Research,Day 5,AM,8
+451003161,MATH- 26-Introduction to Operations Research,Day 5,AM,8
+451003551,MATH- 26-Introduction to Operations Research,Day 5,AM,8
+441003371,MATH- 26-Differential and Integral Calculus,Day 1,AM,0
+462006021,MGT- 101-Entrepreneurship,Day 1,AM,0
+462005421,MGT- 101-Entrepreneurship,Day 1,AM,0
+462005721,MGT- 101-Entrepreneurship,Day 1,AM,0
+462006181,MGT- 101-Entrepreneurship,Day 1,AM,0
+462005631,MGT- 101-Entrepreneurship,Day 1,AM,0
+462006181,PE- 101-Physical Education,Day 3,AM,4
+462006021,PE- 101-Physical Education,Day 3,AM,4
+431003531,COE- 308-Computer Architecture,Day 1,AM,0
+431000131,COE- 308-Computer Architecture,Day 1,AM,0
+431003581,COE- 308-Computer Architecture,Day 1,AM,0
+432004461,COE- 342-Data & Computer Communication,Day 5,AM,8
+432004511,COE- 342-Data & Computer Communication,Day 5,AM,8
+432005001,COE- 342-Data & Computer Communication,Day 5,AM,8
+432004611,COE- 342-Data & Computer Communication,Day 5,AM,8
+441002121,COE- 342-Data & Computer Communication,Day 5,AM,8
+432004701,COE- 344-Computer Networks,Day 2,AM,2
+441000201,COE- 344-Computer Networks,Day 2,AM,2
+461002581,COE- 344-Computer Networks,Day 2,AM,2
+431003581,COE- 344-Computer Networks,Day 2,AM,2
+431000131,COE- 344-Computer Networks,Day 2,AM,2
+411001091,COE- 344-Computer Networks,Day 2,AM,2
+451003551,COE- 344-Computer Networks,Day 2,AM,2
+431002141,COE- 344-Computer Networks,Day 2,AM,2
+431003531,COE- 344-Computer Networks,Day 2,AM,2
+412003911,COE- 402-Advanced Digital Systems Design,Day 1,AM,0
+432004701,COE- 445-Internet Architecture and Technologies,Day 4,AM,6
+431000891,COE- 445-Internet Architecture and Technologies,Day 4,AM,6
+432004461,COE- 445-Internet Architecture and Technologies,Day 4,AM,6
+452004851,COE- 445-Internet Architecture and Technologies,Day 4,AM,6
+412003911,COE- 445-Internet Architecture and Technologies,Day 4,AM,6
+432004611,COE- 445-Internet Architecture and Technologies,Day 4,AM,6
+432004511,COE- 447-Fundamentals of Optical Networking,Day 1,AM,0
+411000491,COE- 447-Fundamentals of Optical Networking,Day 1,AM,0
+451001081,COE- 447-Fundamentals of Optical Networking,Day 1,AM,0
+451004141,COE- 448-Wireless & Mobile Networks,Day 1,AM,0
+451000121,COE- 448-Wireless & Mobile Networks,Day 1,AM,0
+451003361,COE- 448-Wireless & Mobile Networks,Day 1,AM,0
+412003911,COE- 455-Introduction to Digital Control,Day 3,AM,4
+432004701,COE- 498-Design project-I,Day 5,AM,8
+431003581,COE- 498-Design project-I,Day 5,AM,8
+412003911,COE- 499-Design project-II,Day 2,AM,2
+411000491,COE- 499-Design project-II,Day 2,AM,2
+461001221,ENGL- 001-Prep. English I,Day 2,AM,2
+462005651,ENGL- 001-Prep. English I,Day 2,AM,2
+462004511,ENGL- 001-Prep. English I,Day 2,AM,2
+451001501,ENGL- 001-Prep. English I,Day 2,AM,2
+462004881,ENGL- 001-Prep. English I,Day 2,AM,2
+462004491,ENGL- 001-Prep. English I,Day 2,AM,2
+462004921,ENGL- 001-Prep. English I,Day 2,AM,2
+462005271,ENGL- 001-Prep. English I,Day 2,AM,2
+461001881,ENGL- 001-Prep. English I,Day 2,AM,2
+462005321,ENGL- 001-Prep. English I,Day 2,AM,2
+462006171,ENGL- 001-Prep. English I,Day 2,AM,2
+462004951,ENGL- 001-Prep. English I,Day 2,AM,2
+462005621,ENGL- 002-Prep. English II,Day 2,AM,2
+461002031,ENGL- 002-Prep. English II,Day 2,AM,2
+461000921,ENGL- 002-Prep. English II,Day 2,AM,2
+451001191,ENGL- 002-Prep. English II,Day 2,AM,2
+461002321,ENGL- 002-Prep. English II,Day 2,AM,2
+461002561,ENGL- 002-Prep. English II,Day 2,AM,2
+461001931,ENGL- 002-Prep. English II,Day 2,AM,2
+461002801,ENGL- 002-Prep. English II,Day 2,AM,2
+452005311,ENGL- 002-Prep. English II,Day 2,AM,2
+461004121,ENGL- 002-Prep. English II,Day 2,AM,2
+461002551,ENGL- 002-Prep. English II,Day 2,AM,2
+462005841,ENGL- 002-Prep. English II,Day 2,AM,2
+461002821,ENGL- 002-Prep. English II,Day 2,AM,2
+461000741,ENGL- 002-Prep. English II,Day 2,AM,2
+461000801,ENGL- 002-Prep. English II,Day 2,AM,2
+461000351,ENGL- 002-Prep. English II,Day 2,AM,2
+451002941,ENGL- 002-Prep. English II,Day 2,AM,2
+461002161,ENGL- 002-Prep. English II,Day 2,AM,2
+461000691,ENGL- 002-Prep. English II,Day 2,AM,2
+461001821,ENGL- 002-Prep. English II,Day 2,AM,2
+461002921,ENGL- 002-Prep. English II,Day 2,AM,2
+461004111,ENGL- 002-Prep. English II,Day 2,AM,2
+461000681,ENGL- 002-Prep. English II,Day 2,AM,2
+461003161,ENGL- 002-Prep. English II,Day 2,AM,2
+461000321,ENGL- 002-Prep. English II,Day 2,AM,2
+451000771,ENGL- 002-Prep. English II,Day 2,AM,2
+461002901,ENGL- 002-Prep. English II,Day 2,AM,2
+461004221,ENGL- 002-Prep. English II,Day 2,AM,2
+462005751,ENGL- 002-Prep. English II,Day 2,AM,2
+461001031,ENGL- 002-Prep. English II,Day 2,AM,2
+462005531,ENGL- 002-Prep. English II,Day 2,AM,2
+461001771,ENGL- 002-Prep. English II,Day 2,AM,2
+462004651,ENGL- 002-Prep. English II,Day 2,AM,2
+462006091,ENGL- 002-Prep. English II,Day 2,AM,2
+461003121,ENGL- 002-Prep. English II,Day 2,AM,2
+461004381,ENGL- 002-Prep. English II,Day 2,AM,2
+452006081,ENGL- 002-Prep. English II,Day 2,AM,2
+461000041,ENGL- 002-Prep. English II,Day 2,AM,2
+461000611,ENGL- 002-Prep. English II,Day 2,AM,2
+462005031,ENGL- 002-Prep. English II,Day 2,AM,2
+462004931,ENGL- 002-Prep. English II,Day 2,AM,2
+461002741,ENGL- 002-Prep. English II,Day 2,AM,2
+441000861,ENGL- 002-Prep. English II,Day 2,AM,2
+462005581,ENGL- 002-Prep. English II,Day 2,AM,2
+461000251,ENGL- 002-Prep. English II,Day 2,AM,2
+461001271,ENGL- 002-Prep. English II,Day 2,AM,2
+441002651,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+461003911,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+451002761,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+462005811,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+412003951,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+462004461,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+461004141,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+461004231,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+461003221,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+452004451,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+461003661,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+452004611,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+462005791,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+461003931,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+462005261,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+462005051,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+452004881,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+452005411,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+451003281,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+461001941,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+461002541,ENGL- 101-Intro. to Academic Discourse,Day 2,AM,2
+431003201,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+442004411,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+431002531,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+461002051,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+452005671,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+451004211,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+452004731,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+461000191,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+432004341,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+442004381,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+451000361,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+461003501,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+451001371,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+442004741,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+461001431,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+451003771,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+451000931,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+401000431,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+411002931,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+461001291,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+461003871,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+452005991,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+431000891,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+441002971,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+441003121,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+451003181,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+452004851,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+441000151,ENGL- 102-Intro to Report Writing,Day 1,AM,0
+451001611,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+401002781,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+441000571,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+452004871,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+441000461,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+431002881,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+441003841,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+401001071,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+451003131,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+442004641,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+442005191,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+452005841,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+432003991,ENGL- 214-Academic & Professional Comm.,Day 2,AM,2
+451001611,IAS- 212-Professional Ethics,Day 4,AM,6
+461000191,IAS- 212-Professional Ethics,Day 4,AM,6
+451003281,IAS- 212-Professional Ethics,Day 4,AM,6
+452005671,IAS- 212-Professional Ethics,Day 4,AM,6
+452005231,IAS- 212-Professional Ethics,Day 4,AM,6
+441002831,IAS- 212-Professional Ethics,Day 4,AM,6
+462004471,IAS- 212-Professional Ethics,Day 4,AM,6
+451002761,IAS- 212-Professional Ethics,Day 4,AM,6
+461002701,IAS- 212-Professional Ethics,Day 4,AM,6
+452004451,IAS- 212-Professional Ethics,Day 4,AM,6
+452005411,IAS- 212-Professional Ethics,Day 4,AM,6
+442004381,IAS- 212-Professional Ethics,Day 4,AM,6
+442004701,IAS- 212-Professional Ethics,Day 4,AM,6
+441000861,IAS- 212-Professional Ethics,Day 4,AM,6
+452005311,IAS- 212-Professional Ethics,Day 4,AM,6
+441002121,IAS- 212-Professional Ethics,Day 4,AM,6
+442004401,IAS- 410-Biography of the Prophet,Day 3,AM,4
+442004411,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461002561,IAS- 410-Biography of the Prophet,Day 3,AM,4
+462005811,IAS- 410-Biography of the Prophet,Day 3,AM,4
+431002141,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461002051,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461001491,IAS- 410-Biography of the Prophet,Day 3,AM,4
+462004461,IAS- 410-Biography of the Prophet,Day 3,AM,4
+452005671,IAS- 410-Biography of the Prophet,Day 3,AM,4
+431000621,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461002971,IAS- 410-Biography of the Prophet,Day 3,AM,4
+432004341,IAS- 410-Biography of the Prophet,Day 3,AM,4
+462004921,IAS- 410-Biography of the Prophet,Day 3,AM,4
+432004511,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461000231,IAS- 410-Biography of the Prophet,Day 3,AM,4
+451000731,IAS- 410-Biography of the Prophet,Day 3,AM,4
+432004221,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461001431,IAS- 410-Biography of the Prophet,Day 3,AM,4
+432004701,IAS- 410-Biography of the Prophet,Day 3,AM,4
+462005051,IAS- 410-Biography of the Prophet,Day 3,AM,4
+442005121,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461001291,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461003871,IAS- 410-Biography of the Prophet,Day 3,AM,4
+452005991,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461003681,IAS- 410-Biography of the Prophet,Day 3,AM,4
+462005751,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461003521,IAS- 410-Biography of the Prophet,Day 3,AM,4
+452005431,IAS- 410-Biography of the Prophet,Day 3,AM,4
+452005631,IAS- 410-Biography of the Prophet,Day 3,AM,4
+432003991,IAS- 410-Biography of the Prophet,Day 3,AM,4
+432004951,IAS- 410-Biography of the Prophet,Day 3,AM,4
+411001641,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461003601,IAS- 410-Biography of the Prophet,Day 3,AM,4
+412004541,IAS- 410-Biography of the Prophet,Day 3,AM,4
+452004901,IAS- 410-Biography of the Prophet,Day 3,AM,4
+451001011,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461001941,IAS- 410-Biography of the Prophet,Day 3,AM,4
+452004941,IAS- 410-Biography of the Prophet,Day 3,AM,4
+442004381,IAS- 410-Biography of the Prophet,Day 3,AM,4
+441001121,IAS- 410-Biography of the Prophet,Day 3,AM,4
+461003551,IAS- 410-Biography of the Prophet,Day 3,AM,4
+462005621,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002031,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000921,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+451001191,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002321,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002561,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461001931,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005811,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005271,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461001491,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462004461,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002801,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461004121,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002551,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005841,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461004141,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002821,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000741,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000801,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000351,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462004471,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462004921,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005641,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461003661,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+451000731,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002161,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005461,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000691,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461001821,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461003851,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005791,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461001221,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005261,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002921,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005051,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+452004871,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461004111,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000681,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+451001161,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461003161,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000321,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+442005141,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+451000771,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461004221,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005971,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005751,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461001031,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462004691,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461001771,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462004651,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005531,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461003601,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461004381,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461003121,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000041,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462004811,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000611,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005031,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462004931,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461002741,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+462005581,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461000251,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+461001271,PE- 001-Prep. Physical Educ. I,Day 1,AM,0
+431002221,IE- 414-Productivity Engineering and Management,Day 3,AM,4
+401002781,IE- 414-Productivity Engineering and Management,Day 3,AM,4
+401001071,IE- 414-Productivity Engineering and Management,Day 3,AM,4
+401002781,IE- 423-Industrial system simulation,Day 5,AM,8
+411001641,IE- 423-Industrial system simulation,Day 5,AM,8
+412004731,IE- 434-Manufacturing Cost Analysis,Day 3,AM,4
+441003841,IE- 434-Manufacturing Cost Analysis,Day 3,AM,4
+442005191,IE- 434-Manufacturing Cost Analysis,Day 3,AM,4
+441004011,IE- 434-Manufacturing Cost Analysis,Day 3,AM,4
+401001981,IE- 434-Manufacturing Cost Analysis,Day 3,AM,4
+401002781,IE- 443-Safety Engineering,Day 1,AM,0
+412004731,IE- 443-Safety Engineering,Day 1,AM,0
+401001981,IE- 443-Safety Engineering,Day 1,AM,0
+431002221,IE- 443-Safety Engineering,Day 1,AM,0
+412004011,IE- 443-Safety Engineering,Day 1,AM,0
+431002881,IE- 443-Safety Engineering,Day 1,AM,0
+432003991,IE- 443-Safety Engineering,Day 1,AM,0
+412004731,IE- 498-Design project I,Day 4,AM,6
+441003841,IE- 498-Design project I,Day 4,AM,6
+441004011,IE- 498-Design project I,Day 4,AM,6
+442005191,IE- 498-Design project I,Day 4,AM,6
+411001641,IE- 498-Design project I,Day 4,AM,6
+401002781,IE- 499-Design project II,Day 4,AM,6
+431002221,IE- 499-Design project II,Day 4,AM,6
+401001071,IE- 499-Design project II,Day 4,AM,6
+412004011,IE- 499-Design project II,Day 4,AM,6
+431002881,IE- 499-Design project II,Day 4,AM,6
+432003991,IE- 499-Design project II,Day 4,AM,6
+441000481,MATH- 36-Discrete mathematics,Day 1,AM,0
+442004711,MATH- 36-Discrete mathematics,Day 1,AM,0
+441002831,MATH- 36-Discrete mathematics,Day 1,AM,0
+441001831,MATH- 36-Discrete mathematics,Day 1,AM,0
+442005121,EE- 204-Engineering Electromagnetic-I,Day 2,AM,2
+431002401,EE- 204-Engineering Electromagnetic-I,Day 2,AM,2
+442004741,EE- 204-Engineering Electromagnetic-I,Day 2,AM,2
+442005121,EE- 320-Electronics-II,Day 4,AM,6
+442004741,EE- 320-Electronics-II,Day 4,AM,6
+452005991,EE- 380-Electric Energy Engineering,Day 5,AM,8
+442004741,EE- 380-Electric Energy Engineering,Day 5,AM,8
+442004741,EE- 442-Machine Learning,Day 3,AM,4
+411000941,EE- 499-Design Project II,Day 1,AM,0
+411000941,EE- 999-practical training,Day 2,AM,2
