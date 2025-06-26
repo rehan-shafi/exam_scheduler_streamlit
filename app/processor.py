@@ -1,76 +1,138 @@
 import pandas as pd
 from app.mapping_utils import generate_course_and_student_mappings
+import xml.etree.ElementTree as ET
+from typing import List, Dict, Tuple
+from io import BytesIO
+from sqlalchemy.orm import Session
+from db.models import XMLFile
+from db.models import Course, IgnoredCourse,Student, CourseStudent
+from db.session import SessionLocal
 
-def propagate_course_info(df):
-    current_course = None
+def extract_student_course_data(xml_files: List[BytesIO]) -> Tuple[Dict[str, List[str]], Dict[str, List[str]]]:
+    student_to_courses = {}
+    course_to_students = {}
 
-    for i in range(len(df)):
-        val = str(df.iat[i, 0]).strip().lower()
+    for file in xml_files:
+        tree = ET.parse(file)
+        root = tree.getroot()
 
-        if val.startswith("course-"):
-            current_course = df.iat[i, 0]  # Store the full course line
-        elif pd.isna(df.iat[i, 0]) or df.iat[i, 0] == "":
-            if current_course:
-                df.iat[i, 0] = current_course  # Fill down
-        else:
-            # If a new non-empty, non-course value comes, stop filling
-            current_course = None
+        for g_semester in root.findall(".//G_SEMESTER"):
+            course_code = g_semester.findtext("COURSE_CODE", "").strip().replace(" ", "")
+            student_list = g_semester.find("LIST_G_STUDENT_ID")
+            if not course_code or student_list is None:
+                continue
 
-    return df
+            for g_student in student_list.findall("G_STUDENT_ID"):
+                student_id = g_student.findtext("STUDENT_ID1", "").strip()
+                if not student_id:
+                    continue
+
+                student_to_courses.setdefault(student_id, []).append(course_code)
+                course_to_students.setdefault(course_code, []).append(student_id)
+
+    return student_to_courses, course_to_students
 
 
-def extract_student_course_data(file_path):
-    df = pd.read_excel(file_path, sheet_name=0, header=None)
+def insert_xml_data(xml_file: BytesIO, gender: str, filename: str, db: Session):
+    # ✅ Step 1: Insert XML record
+    xml_record = XMLFile(filename=filename, gender_group=gender)
+    db.add(xml_record)
+    db.commit()
+    db.refresh(xml_record)
+    xml_file_id = xml_record.id
 
-    # Extract full columns D (3), G (6), H (7), J (9)
-    selected_df = df[[3, 6, 7, 9]]
-    selected_df.columns = ["D", "G", "H", "J"]
+    # ✅ Step 2: Parse XML
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
 
-    for i in range(len(selected_df)):
-        val = str(selected_df.iat[i, 0]).strip().lower()
-        if val == "course":
-            part1 = str(selected_df.iat[i, 2]).strip()
-            part2 = str(selected_df.iat[i, 3]).strip()
-            combined = f"{val}-{part1}-{part2}"
-            selected_df.iat[i, 0] = combined
+    # ✅ Step 3: Load ignored course codes from DB
+    ignored_course_rows = db.query(IgnoredCourse).all()
+    ignored_codes = {row.course_code.strip().replace(" ", "") for row in ignored_course_rows}
 
-    # Keep only column 0 (Course Info) and column 1 (Student ID)
-    final_df = selected_df[["D", "G"]].copy()
-    final_df.columns = ["Course Info", "Student ID"]
+    # ✅ Step 4: Loop and insert valid courses
+    unique_courses = {}
 
-    # Remove rows where both Course Info and Student ID are missing
-    final_df.dropna(subset=["Course Info", "Student ID"], how="all", inplace=True)
+    for g_semester in root.findall(".//G_SEMESTER"):
+        course_code = g_semester.findtext("COURSE_CODE", "").strip().replace(" ", "")
+        if not course_code or course_code in ignored_codes:
+            continue
 
-    # Keep rows where Course Info is either null or starts with "course-"
-    final_df = final_df[
-        final_df["Course Info"].isna() |
-        final_df["Course Info"].str.strip().str.lower().str.startswith("course-")
-    ].copy()
-    final_df = propagate_course_info(final_df)
+        # Only add course once per XML
+        if course_code not in unique_courses:
+            course_name = g_semester.findtext("COURSE_NAME", "").strip()
+            section = g_semester.findtext("SECTION", "").strip()
 
-    # Normalize and drop rows where Student ID is NaN or contains the string "student id"
-    final_df = final_df[
-        final_df["Student ID"].notna() &
-        (~final_df["Student ID"]
-            .astype(str)
-            .str.replace(r'\s+', ' ', regex=True)  # collapse multiple spaces
-            .str.strip()
-            .str.lower()
-            .eq("student id")
-        )
-    ].copy()
+            course = Course(
+                course_code=course_code,
+                course_name=course_name,
+                section=section,
+                xml_file_id=xml_file_id
+            )
+            db.add(course)
+            db.flush()  # get ID immediately
+            unique_courses[course_code] = course.id
 
-    final_df["Course Info"] = final_df["Course Info"].str.replace(r"^course-\s*", "", regex=True)
+   
+    db.commit()
+    # Step 5: Reload inserted courses for lookup (course_code → id)
+    course_code_to_id = unique_courses
 
-    # Save to a new CSV file
-    output_path = "output/final_course_student_mapping.csv"
-    final_df.to_csv(output_path, index=False)
+    # Step 6: Insert students and their course mappings
+    student_id_map = {}  # to avoid duplicates
 
-    # Optional print
-    #print("\n✅ Final cleaned data (Course Info + Student ID):\n")
-    #print(final_df.to_string(index=False))
+    for g_semester in root.findall(".//G_SEMESTER"):
+        course_code = g_semester.findtext("COURSE_CODE", "").strip().replace(" ", "")
+        if course_code not in course_code_to_id:
+            continue  # was ignored or invalid
 
-    
-    course_to_students, student_to_courses = generate_course_and_student_mappings(final_df)
+        course_id = course_code_to_id[course_code]
+        student_list = g_semester.find("LIST_G_STUDENT_ID")
+        if student_list is None:
+            continue
 
-    return final_df, output_path,course_to_students, student_to_courses
+        for g_student in student_list.findall("G_STUDENT_ID"):
+            student_id1 = g_student.findtext("STUDENT_ID1", "").strip()
+            name = g_student.findtext("STUDENT_NAME_S", "").strip()
+            major = g_student.findtext("MAJOR_DESC", "").strip()
+
+            if not student_id1:
+                continue
+
+            # Add student once per XML
+            if student_id1 not in student_id_map:
+                student = Student(
+                    student_id1=student_id1,
+                    name=name,
+                    major=major,
+                    xml_file_id=xml_file_id
+                )
+                db.add(student)
+                db.flush()  # get auto ID without full commit
+                student_id_map[student_id1] = student.id
+            else:
+                student = student_id_map[student_id1]
+
+            # Add course-student mapping
+            mapping = CourseStudent(
+                course_id=course_id,
+                student_id=student_id_map[student_id1]
+            )
+            db.add(mapping)
+
+    db.commit()  # Bulk commit after inserting all courses
+    print(f"\n✅ Finished inserting XML ID {xml_file_id}")
+    print(f"   Total courses: {len(course_code_to_id)}")
+    print(f"   Total students: {len(student_id_map)}")
+    print(f"   Total mappings: {db.query(CourseStudent).filter(CourseStudent.course_id.in_(course_code_to_id.values())).count()}")
+
+    return xml_file_id, root
+
+
+def process_uploaded_file(file, gender):
+    if file is None:
+        return None
+
+    db = SessionLocal()
+    xml_id, _ = insert_xml_data(file, gender=gender, filename=file.name, db=db)
+    db.close()
+    return xml_id

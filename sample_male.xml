@@ -1,0 +1,53 @@
+<ROOT>
+  <G_SEMESTER>
+    <COURSE_CODE> CS-101 </COURSE_CODE>
+    <COURSE_NAME> Introduction to CS </COURSE_NAME>
+    <SECTION>1</SECTION>
+    <LIST_G_STUDENT_ID>
+      <G_STUDENT_ID>
+        <STUDENT_ID1>411001001</STUDENT_ID1>
+        <STUDENT_NAME_S> Ahmed Ali </STUDENT_NAME_S>
+        <MAJOR_DESC>Computer Science</MAJOR_DESC>
+      </G_STUDENT_ID>
+      <G_STUDENT_ID>
+        <STUDENT_ID1>411001002</STUDENT_ID1>
+        <STUDENT_NAME_S> Rehan Shafi </STUDENT_NAME_S>
+        <MAJOR_DESC>Computer Science</MAJOR_DESC>
+      </G_STUDENT_ID>
+    </LIST_G_STUDENT_ID>
+  </G_SEMESTER>
+  <G_SEMESTER>
+    <COURSE_CODE> CS-102 </COURSE_CODE>
+    <COURSE_NAME> Introduction to Algorithm </COURSE_NAME>
+    <SECTION>1</SECTION>
+    <LIST_G_STUDENT_ID>
+      <G_STUDENT_ID>
+        <STUDENT_ID1>411001001</STUDENT_ID1>
+        <STUDENT_NAME_S> Ahmed Ali </STUDENT_NAME_S>
+        <MAJOR_DESC>Computer Science</MAJOR_DESC>
+      </G_STUDENT_ID>
+      <G_STUDENT_ID>
+        <STUDENT_ID1>411001002</STUDENT_ID1>
+        <STUDENT_NAME_S> Rehan Shafi </STUDENT_NAME_S>
+        <MAJOR_DESC>Computer Science</MAJOR_DESC>
+      </G_STUDENT_ID>
+    </LIST_G_STUDENT_ID>
+  </G_SEMESTER>
+  <G_SEMESTER>
+    <COURSE_CODE> IE-999 </COURSE_CODE>
+    <COURSE_NAME> Introduction to IE </COURSE_NAME>
+    <SECTION>1</SECTION>
+    <LIST_G_STUDENT_ID>
+      <G_STUDENT_ID>
+        <STUDENT_ID1>411001001</STUDENT_ID1>
+        <STUDENT_NAME_S> Ahmed Ali </STUDENT_NAME_S>
+        <MAJOR_DESC>Computer Science</MAJOR_DESC>
+      </G_STUDENT_ID>
+      <G_STUDENT_ID>
+        <STUDENT_ID1>411001002</STUDENT_ID1>
+        <STUDENT_NAME_S> Rehan Shafi </STUDENT_NAME_S>
+        <MAJOR_DESC>Computer Science</MAJOR_DESC>
+      </G_STUDENT_ID>
+    </LIST_G_STUDENT_ID>
+  </G_SEMESTER>
+</ROOT>

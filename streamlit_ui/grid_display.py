@@ -34,20 +34,23 @@ def display_schedule_grid():
     df[["Day", "Time"]] = df["Slot #"].apply(lambda s: pd.Series(get_day_and_shift(s)))
 
     # Create structure: {day: {AM: [], PM: []}}
+    num_days = len(exam_dates)
+    time_slots = ["9:00 AM - 11:00 AM", "11:30 AM - 01:30 PM"]
+
     all_days = []
-    for i in range(0, 20, 2):
+    for i in range(0, num_days * 2, 2):  # 0, 2, 4, ..., 2×(num_days - 1)
         label = get_slot_label(i, exam_dates)
         day_match = re.match(r"^(.*?)(\s*[–-]\s*\(.*)?$", label)
         clean_day = day_match.group(1).strip() if day_match else "Invalid"
         all_days.append(clean_day)
-        time_slots = ["9:00 AM - 11:00 AM", "11:30 AM - 01:30 PM"]
+
 
     schedule_dict = {day: {ts: set() for ts in time_slots} for day in all_days}
 
     for _, row in df.iterrows():
         day = str(row["Day"]).strip()
         time = str(row["Time"]).strip()
-        course = row["Course"]
+        course = row["Course Code"] + " - " + row["Course Name"] 
         if day in schedule_dict and time in schedule_dict[day]:
             schedule_dict[day][time].add(course)
 
@@ -117,7 +120,8 @@ def display_schedule_grid():
     highlighted = set(st.session_state.get("selected_courses", []))
 
     def highlight_cell(course_name):
-        if course_name in highlighted:
+        code = course_name.split(" - ")[0] if " - " in course_name else course_name
+        if code in highlighted:
             return f'<td style="background-color: #fff7a8;"><b>{course_name}</b></td>'
         elif course_name == "":
             return "<td style='border: 1px solid #444; padding: 6px;'></td>"

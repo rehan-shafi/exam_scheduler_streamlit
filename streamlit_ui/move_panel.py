@@ -35,14 +35,14 @@ def show_move_panel():
 
     st.subheader("🔄 Move Course to Another Slot")
 
-    df_sorted = df.drop_duplicates("Course").copy()
+    df_sorted = df.drop_duplicates("Course Code").copy()
     df_sorted["Slot Int"] = df_sorted["Slot #"].apply(lambda x: 999 if x in ["N/A", None, ""] else int(x))
     df_sorted = df_sorted.sort_values("Slot Int")
 
-    all_courses = df_sorted["Course"].tolist()
+    all_courses = df_sorted["Course Code"].tolist()
     course_labels = {}
     for course in all_courses:
-        row = df[df["Course"] == course].iloc[0]
+        row = df[df["Course Code"] == course].iloc[0]
         slot = row["Slot #"]
         if slot != "N/A":
             label = f"{course} – {get_slot_label(int(slot), exam_dates)}"
@@ -52,15 +52,17 @@ def show_move_panel():
 
     selected_courses = show_course_checkboxes(course_labels)
 
-    slot_labels = [get_slot_label(i, exam_dates) for i in range(20)]
-    selected_slot = st.selectbox("Select Target Slot:", options=list(range(20)), format_func=lambda i: slot_labels[i])
+    total_slots = len(exam_dates) * 2
+    slot_labels = [get_slot_label(i, exam_dates) for i in range(total_slots)]
+    selected_slot = st.selectbox("Select Target Slot:", options=list(range(total_slots)), format_func=lambda i: slot_labels[i])
+
 
     if st.button("Apply Move"):
         moved = []
         conflicts = []
 
         for course in selected_courses:
-            students = df[df["Course"] == course]["Student ID"].unique()
+            students = df[df["Course Code"] == course]["Student ID"].unique()
             slot_conflict = False
 
             for student in students:
@@ -71,11 +73,11 @@ def show_move_panel():
                     break
 
             if not slot_conflict:
-                st.session_state.df_schedule.loc[df["Course"] == course, "Slot #"] = selected_slot
+                st.session_state.df_schedule.loc[df["Course Code"] == course, "Slot #"] = selected_slot
                 day_index = selected_slot // 2
                 time_label = "AM" if selected_slot % 2 == 0 else "PM"
-                st.session_state.df_schedule.loc[df["Course"] == course, "Day"] = f"{exam_dates[day_index].strftime('%d %B')}"
-                st.session_state.df_schedule.loc[df["Course"] == course, "Time"] = time_label
+                st.session_state.df_schedule.loc[df["Course Code"] == course, "Day"] = f"{exam_dates[day_index].strftime('%d %B')}"
+                st.session_state.df_schedule.loc[df["Course Code"] == course, "Time"] = time_label
                 moved.append(course)
 
         if moved:
