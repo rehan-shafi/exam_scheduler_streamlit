@@ -18,8 +18,8 @@ with st.expander("⚙️ Setup Options", expanded=True):
         start_date = st.date_input("📅 Select Exam Start Date", value=datetime.date.today())
         num_days = st.number_input("🗓️ Number of Exam Days", min_value=1, max_value=30, value=10)
     with colB:
-        male_file = st.file_uploader("Upload Male Campus XML", type=["xml"], key="male")
-        female_file = st.file_uploader("Upload Female Campus XML", type=["xml"], key="female")
+        regular_file = st.file_uploader("Upload Regular Campus XML", type=["xml"], key="regular")
+        visitor_file = st.file_uploader("Upload Visiting Students XML", type=["xml"], key="visitor")
 
 # Step 1: Select exam start date
 st.session_state["exam_start_date"] = start_date
@@ -29,14 +29,17 @@ st.session_state["num_days"] = num_days
 st.session_state["exam_dates"] = generate_exam_dates(start_date,num_days)
 
 # Step 3: Upload file
-if male_file and female_file:
+if regular_file and visitor_file:
     st.success("📤 Uploading and processing files...")
 
     if "uploaded" not in st.session_state:
-        male_id = process_uploaded_file(male_file, gender="male")
-        female_id = process_uploaded_file(female_file, gender="female")
+        regular_id = process_uploaded_file(regular_file, gender="regular", first_file_id=0)
+        st.session_state["regular_xml_id"] = regular_id  # ✅ Save first file ID
+
+        visitor_id = process_uploaded_file(visitor_file, gender="visitor", first_file_id=regular_id)
+        st.session_state["visitor_xml_id"] = visitor_id
         st.session_state["uploaded"] = True
-        st.session_state["xml_ids"] = [male_id, female_id]
+        st.session_state["xml_ids"] = [regular_id, visitor_id]
 
     if st.button("📅 Generate Exam Schedule"):
         final_df, student_to_courses, course_to_students = schedule_exams_from_db(

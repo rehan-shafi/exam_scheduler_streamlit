@@ -5,8 +5,18 @@ import re
 import pdfkit
 import tempfile
 import base64
-
 from collections import defaultdict
+from io import BytesIO
+import io
+
+def convert_df_to_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Exam Schedule')
+       
+    processed_data = output.getvalue()
+    return processed_data
+
 
 def display_schedule_grid():
     if "df_schedule" not in st.session_state:
@@ -69,6 +79,7 @@ def display_schedule_grid():
                 time_slots[1]: slots[time_slots[1]][i] if i < len(slots[time_slots[1]]) else "",
             }
             rows.append(row)
+      #  rows.append({"Day": "", time_slots[0]: "", time_slots[1]: ""})
 
     final_df = pd.DataFrame(rows)
 
@@ -115,6 +126,71 @@ def display_schedule_grid():
         f'<a href="data:application/pdf;base64,{b64_pdf}" download="exam_schedule.pdf">📄 Download Exam Schedule as PDF</a>',
         unsafe_allow_html=True
     )
+    excel_data = convert_df_to_excel(final_df)
+    st.download_button("📥 Download as Excel", excel_data, file_name="exam_schedule.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+    if "df_schedule" in st.session_state:
+        df = st.session_state["df_schedule"].copy()
+        df = df.sort_values(by=["Day", "Time", "Course Code"])  # optional sorting
+
+        col1, col2 = st.columns(2)
+
+        # 👦 Male Export Button
+        with col1:
+            df = df.copy()
+
+            # Convert Day to datetime for proper sorting
+            df["Day"] = pd.to_datetime(df["Day"], errors="coerce")
+
+            # Convert Time to a sort-friendly value: AM=0, PM=1
+            df["TimeSort"] = df["Time"].map({"AM": 0, "PM": 1})
+
+            # Now sort
+            df = df.sort_values(by=["Day", "TimeSort", "Course Code"])
+
+            # Optional: drop TimeSort if you don’t want it in output
+            df = df.drop(columns=["TimeSort"])
+
+            male_df = df[df["Student ID"].astype(str).str.endswith("1")]
+            male_output = io.BytesIO()
+            with pd.ExcelWriter(male_output, engine="xlsxwriter") as writer:
+                male_df.to_excel(writer, index=False, sheet_name="Male Schedule")
+
+            st.download_button(
+                label="📘 Download Male Schedule (Excel)",
+                data=male_output.getvalue(),
+                file_name="exam_schedule_male.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+        # 👧 Female Export Button
+        with col2:
+            df = df.copy()
+
+            # Convert Day to datetime for proper sorting
+            df["Day"] = pd.to_datetime(df["Day"], errors="coerce")
+
+            # Convert Time to a sort-friendly value: AM=0, PM=1
+            df["TimeSort"] = df["Time"].map({"AM": 0, "PM": 1})
+
+            # Now sort
+            df = df.sort_values(by=["Day", "TimeSort", "Course Code"])
+
+            # Optional: drop TimeSort if you don’t want it in output
+            df = df.drop(columns=["TimeSort"])
+
+            female_df = df[df["Student ID"].astype(str).str.endswith("2")]
+            female_output = io.BytesIO()
+            with pd.ExcelWriter(female_output, engine="xlsxwriter") as writer:
+                female_df.to_excel(writer, index=False, sheet_name="Female Schedule")
+
+            st.download_button(
+                label="📙 Download Female Schedule (Excel)",
+                data=female_output.getvalue(),
+                file_name="exam_schedule_female.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
 
     # Highlighted grid rendering
     highlighted = set(st.session_state.get("selected_courses", []))
