@@ -2,14 +2,14 @@ from db.session import SessionLocal
 from db.models import Course, Student, CourseStudent
 from collections import defaultdict
 import pandas as pd
-from datetime import timedelta
+from datetime import timedelta, date
 import time
+from sqlalchemy import text  # ✅ for lightweight bulk inserts
 
-# ✅ Static fixed slots for specified courses (slot = day index; 0-based; AM only)
-# Example: "ARAB.202": 0 means Day 1 AM
+# ✅ Static fixed slots for specified courses (slot = even index; 0=Day1 AM, 2=Day2 AM, ..., 18=Day10 AM)
 FIXED_COURSE_SLOTS = {
     # "ARAB.202": 0,
-    # "IC.408": 4
+    # "IC.408": 8
 }
 
 # -------------------------
@@ -24,10 +24,11 @@ def _fmt_ms(ms):
 
 def get_day_and_time(slot, start_date):
     """
-    With AM-only scheduling, slot == day index (0-based).
+    Slots are global indices where even = AM, odd = PM.
+    Day offset = slot // 2.
     """
-    exam_date = start_date + timedelta(days=slot)
-    return exam_date.strftime("%Y-%m-%d"), "AM"
+    exam_date = start_date + timedelta(days=slot // 2)
+    return exam_date.strftime("%Y-%m-%d"), ("AM" if (slot % 2 == 0) else "PM")
 
 
 def get_student_course_mappings(xml_file_ids):
@@ -125,12 +126,11 @@ def build_conflict_map(student_to_courses):
 # -------------------------
 def _dsatur_color(course_list, conflict_map, max_colors, preferred_slots, fixed_slot_assignment):
     """
-    DSATUR greedy coloring (using only provided preferred_slots).
-    Returns dict(course -> slot) if it fits within max_colors, else None.
+    DSATUR greedy coloring confined to 'preferred_slots' (even indices for AM).
+    Returns dict(course -> slot) if fits within max_colors, else None.
     """
-    print("⚡ [dsatur] start (AM-only)", flush=True)
-    # assignment uses actual slot ids from preferred_slots (0..num_days-1)
-    assignment = dict(fixed_slot_assignment)  # course -> slot (day index)
+    print("⚡ [dsatur] start (AM-only, even slot IDs)", flush=True)
+    assignment = dict(fixed_slot_assignment)  # course -> slot (even index)
 
     neighbors = {c: set(conflict_map.get(c, set())) for c in course_list}
     degrees = {c: len(neighbors[c]) for c in course_list}
@@ -149,17 +149,16 @@ def _dsatur_color(course_list, conflict_map, max_colors, preferred_slots, fixed_
         neighbor_slots[c] = seen
         sat_deg[c] = len(seen)
 
+    cap = min(max_colors, len(preferred_slots))
+
     def pick_next():
         return max(uncolored, key=lambda x: (sat_deg[x], degrees[x]))
-
-    cap = min(max_colors, len(preferred_slots))
 
     while uncolored:
         v = pick_next()
 
         forbidden = neighbor_slots[v]
         chosen_slot = None
-        # Try AM slots in the given order
         for k in range(cap):
             slot_id = preferred_slots[k]
             if slot_id not in forbidden:
@@ -167,7 +166,7 @@ def _dsatur_color(course_list, conflict_map, max_colors, preferred_slots, fixed_
                 break
 
         if chosen_slot is None:
-            print("⚡ [dsatur] needs more than", cap, "slots. fallback required.", flush=True)
+            print("⚡ [dsatur] needs more than", cap, "AM slots. fallback required.", flush=True)
             return None
 
         assignment[v] = chosen_slot
@@ -178,16 +177,16 @@ def _dsatur_color(course_list, conflict_map, max_colors, preferred_slots, fixed_
                 neighbor_slots[n].add(chosen_slot)
                 sat_deg[n] = len(neighbor_slots[n])
 
-    print("✅ [dsatur] success within available AM slots", flush=True)
+    print("✅ [dsatur] success within available AM (even) slots", flush=True)
     return assignment
 
 
 # ------------------------------------
-# Capped backtracking (AM-only)
+# Capped backtracking (AM-only, even)
 # ------------------------------------
 def backtrack_schedule(course_list, conflict_map, slot_list, fixed_slot_assignment,
                        max_ms_per_attempt=10000, max_calls_per_attempt=2_000_000):
-    print(f"🧠 [backtrack_schedule] Start: courses={len(course_list)} slots={len(slot_list)} fixed={len(fixed_slot_assignment)} (AM-only)", flush=True)
+    print(f"🧠 [backtrack_schedule] Start: courses={len(course_list)} slots={len(slot_list)} fixed={len(fixed_slot_assignment)} (AM-only even)", flush=True)
     slot_assignment = fixed_slot_assignment.copy()
     neighbors = conflict_map  # alias
 
@@ -290,7 +289,6 @@ def rebuild_course_to_students_with_names(course_to_students, course_map, course
 
         course_code = course.course_code
         course_name = code_to_name.get(course_code, "Unknown Course")
-
         rebuilt[(course_code, course_name)].add(student_id)
 
         if idx % 10000 == 0:
@@ -301,13 +299,111 @@ def rebuild_course_to_students_with_names(course_to_students, course_map, course
     return rebuilt
 
 
+# -------------------------
+# NEW: Persist schedule to DB (one run + rows)
+# -------------------------
+def _pydate_from_str(yyyy_mm_dd: str) -> date:
+    y, m, d = yyyy_mm_dd.split("-")
+    return date(int(y), int(m), int(d))
+
+def save_schedule_to_db(course_slot_map, rows, start_date, num_days, xml_file_ids):
+    """
+    course_slot_map: dict[(course_code, course_name)] -> slot
+    rows: list of dicts with Student-level rows (already built below)
+    start_date: datetime.date
+    num_days: int
+    xml_file_ids: list[int] or list[str] (stored as CSV for traceability)
+    """
+    print("🗄️ [save_schedule_to_db] start", flush=True)
+    db = SessionLocal()
+    try:
+        # 1) Insert run header and get run_id
+        csv_ids = ",".join([str(x) for x in (xml_file_ids or [])])
+        run_id = db.execute(
+            text("""
+                INSERT INTO public.exam_schedule_runs (start_date, num_days, xml_file_ids)
+                VALUES (:start_date, :num_days, :xml_file_ids)
+                RETURNING id;
+            """),
+            {"start_date": start_date, "num_days": num_days, "xml_file_ids": csv_ids}
+        ).scalar_one()
+
+        # 2) Insert course-level slots
+        course_rows = []
+        for (course_code, course_name), slot in course_slot_map.items():
+            day_idx = slot // 2
+            exam_date_str, time_label = get_day_and_time(slot, start_date)
+            course_rows.append({
+                "run_id": run_id,
+                "group_or_code": course_code,  # after expansion, this is the normalized code
+                "course_code": course_code,
+                "course_name": course_name,
+                "day_index": day_idx,
+                "slot": int(slot),
+                "exam_date": _pydate_from_str(exam_date_str),
+                "time_label": time_label
+            })
+
+        if course_rows:
+            db.execute(text("""
+                INSERT INTO public.exam_slots
+                    (run_id, group_or_code, course_code, course_name, day_index, slot, exam_date, time_label)
+                VALUES
+                    (:run_id, :group_or_code, :course_code, :course_name, :day_index, :slot, :exam_date, :time_label)
+                ON CONFLICT (run_id, course_code) DO UPDATE
+                    SET day_index = EXCLUDED.day_index,
+                        slot = EXCLUDED.slot,
+                        exam_date = EXCLUDED.exam_date,
+                        time_label = EXCLUDED.time_label,
+                        course_name = EXCLUDED.course_name;
+            """), course_rows)
+
+        # 3) Insert student-level rows
+        # rows already contain: Student ID, Student Name, Course Code, Course Name, Day, Time, Slot #
+        student_rows = []
+        for r in rows:
+            # skip unscheduled
+            if r.get("Slot #") == "N/A":
+                continue
+            student_rows.append({
+                "run_id": run_id,
+                "student_id": r["Student ID"],
+                "student_name": r.get("Student Name"),
+                "course_code": r["Course Code"],
+                "course_name": r.get("Course Name"),
+                "day_index": int(r["Slot #"]) // 2,
+                "slot": int(r["Slot #"]),
+                "exam_date": _pydate_from_str(r["Day"]) if isinstance(r["Day"], str) else r["Day"],
+                "time_label": r.get("Time", "AM")
+            })
+
+        if student_rows:
+            db.execute(text("""
+                INSERT INTO public.student_exams
+                    (run_id, student_id, student_name, course_code, course_name, day_index, slot, exam_date, time_label)
+                VALUES
+                    (:run_id, :student_id, :student_name, :course_code, :course_name, :day_index, :slot, :exam_date, :time_label)
+                ON CONFLICT (run_id, student_id, course_code) DO NOTHING;
+            """), student_rows)
+
+        db.commit()
+        print(f"🗄️ [save_schedule_to_db] committed run_id={run_id}  • courses={len(course_rows)}  • student_rows={len(student_rows)}", flush=True)
+        return run_id
+    except Exception as e:
+        db.rollback()
+        print(f"❌ [save_schedule_to_db] error: {e}", flush=True)
+        raise
+    finally:
+        db.close()
+
+
 def schedule_exams_from_db(xml_file_ids, start_date, num_days):
     t_all = _now_ms()
-    print("🚀 [schedule_exams_from_db] START (AM-only)", flush=True)
+    print("🚀 [schedule_exams_from_db] START (AM-only, even indices + shrink)", flush=True)
 
-    # AM-only ⇒ total_slots == num_days
-    total_slots = num_days
-    print(f"  • num_days={num_days} total_slots(AM-only)={total_slots}", flush=True)
+    # We schedule ONLY AM, but with even-numbered global slot IDs: [0,2,4,...,2*(num_days-1)]
+    total_days = num_days
+    print(f"  • num_days={num_days} total_days(AM-only)={total_days}", flush=True)
 
     course_to_students, student_to_courses, course_map = get_student_course_mappings(xml_file_ids)
     print(f"  • After mapping: courses={len(course_to_students)} students={len(student_to_courses)}", flush=True)
@@ -322,7 +418,7 @@ def schedule_exams_from_db(xml_file_ids, start_date, num_days):
     course_list = [course for course, _ in sorted_courses]
     print(f"  • Target list size: {len(course_list)}", flush=True)
 
-    # Fixed slots (day indices)
+    # Fixed slots (even indices)
     fixed_slot_assignment = {}
     fixed_courses_set = set()
     for course_code, slot in FIXED_COURSE_SLOTS.items():
@@ -331,62 +427,53 @@ def schedule_exams_from_db(xml_file_ids, start_date, num_days):
     if fixed_slot_assignment:
         print(f"  • Fixed slots preset: {fixed_slot_assignment}", flush=True)
 
-    # Preferred slots are AM day indices only: [0..num_days-1]
-    preferred_slots = list(range(total_slots))
-    print(f"  • Preferred AM slots (day indices): {preferred_slots}", flush=True)
+    # Preferred AM slots as even indices: [0,2,4,...,2*(num_days-1)]
+    preferred_slots = [2 * i for i in range(total_days)]
+    print(f"  • Preferred AM (even) slots: {preferred_slots}", flush=True)
 
-    # ----------------------------
-    # 1) Fast pass: DSATUR greedy
-    # ----------------------------
+    # Degree lower bound
     degrees = {c: len(conflict_map.get(c, set())) for c in course_list}
     max_deg = max(degrees.values()) if degrees else 0
-    lower_bound = min(total_slots, max_deg + 1)
-    print(f"  • Degree stats: max_degree={max_deg}  → lower_bound_slots={lower_bound}", flush=True)
+    lower_bound = min(total_days, max_deg + 1)
+    print(f"  • Degree stats: max_degree={max_deg}  → lower_bound_days={lower_bound}", flush=True)
 
-    dsatur_assignment = _dsatur_color(
-        course_list,
-        conflict_map,
-        max_colors=total_slots,                # 10 max (AM-only)
-        preferred_slots=preferred_slots,
-        fixed_slot_assignment=fixed_slot_assignment
-    )
+    # -------- helper to try a given number of days (slots subset) --------
+    def try_with_days(day_limit: int):
+        slots = preferred_slots[:day_limit]  # first N even slots
+        # 1) DSATUR
+        ds = _dsatur_color(course_list, conflict_map, max_colors=day_limit,
+                           preferred_slots=slots, fixed_slot_assignment=fixed_slot_assignment)
+        if ds is not None:
+            return ds
+        # 2) capped backtracking fallback
+        return backtrack_schedule(
+            [c for c in course_list if c not in fixed_courses_set],
+            conflict_map, slots, fixed_slot_assignment,
+            max_ms_per_attempt=10000, max_calls_per_attempt=2_000_000
+        )
 
-    if dsatur_assignment is not None:
-        print("✅ Using DSATUR assignment (no backtracking needed).", flush=True)
-        course_slot_map = dsatur_assignment
-    else:
-        # ---------------------------------------
-        # 2) Fallback: capped backtracking search
-        # ---------------------------------------
-        backtrack_courses = [c for c in course_list if c not in fixed_courses_set]
-        print(f"  • Courses to backtrack (excl. fixed): {len(backtrack_courses)}", flush=True)
+    # -------- ensure it fits within the requested days --------
+    course_slot_map = try_with_days(total_days)
+    if course_slot_map is None:
+        print("❌ Could not fit within requested days.", flush=True)
+        raise Exception("❌ Could not find a valid AM-only schedule within available days.")
 
-        final_slot_assignment = None
+    # -------- NEW: shrink pass to find minimum number of days --------
+    best_days = total_days
+    best_assignment = course_slot_map
+    for day_limit in range(total_days - 1, 0, -1):
+        print(f"🔎 Trying to shrink to {day_limit} days…", flush=True)
+        candidate = try_with_days(day_limit)
+        if candidate is not None:
+            best_days = day_limit
+            best_assignment = candidate
+            print(f"   ✅ Works with {day_limit} days; continuing to shrink…", flush=True)
+        else:
+            print(f"   ❌ {day_limit} days not feasible; keeping {best_days}.", flush=True)
+            break
 
-        # Start from realistic bound (Δ+1), but not less than 1
-        start_limit = max(lower_bound, 1)
-        print(f"  • Backtracking start_limit={start_limit} (AM-only)", flush=True)
-
-        for slot_limit in range(start_limit, total_slots + 1):
-            current_slot_list = preferred_slots[:slot_limit]
-            print(f"🧪 Trying with first {slot_limit} AM slots (days): {current_slot_list}", flush=True)
-            t_try = _now_ms()
-            tentative_assignment = backtrack_schedule(
-                backtrack_courses, conflict_map, current_slot_list, fixed_slot_assignment,
-                max_ms_per_attempt=10000,  # hard cap per attempt
-                max_calls_per_attempt=2_000_000
-            )
-            print(f"   ↪ attempt finished in {_fmt_ms(_now_ms() - t_try)}", flush=True)
-            if tentative_assignment:
-                final_slot_assignment = tentative_assignment
-                print("   ✅ Found valid assignment at slot_limit =", slot_limit, flush=True)
-                break
-
-        if final_slot_assignment is None:
-            print("❌ Could not find a valid AM-only schedule within the available days.", flush=True)
-            raise Exception("❌ Could not find a valid AM-only schedule using DSATUR or capped backtracking.")
-
-        course_slot_map = final_slot_assignment
+    course_slot_map = best_assignment
+    print(f"🏁 Final days used: {best_days}", flush=True)
 
     # Expand grouped codes back to individual courses
     course_slot_map = expand_grouped_course_slots(course_slot_map, group_map, course_map)
@@ -415,13 +502,20 @@ def schedule_exams_from_db(xml_file_ids, start_date, num_days):
                 "Course Code": course_code,
                 "Course Name": course_name,
                 "Day": day,
-                "Time": time_label,  # always "AM"
+                "Time": time_label,  # "AM"
                 "Slot #": slot if slot is not None else "N/A"
             })
 
     if missing_slots:
         print(f"  ⚠️ Courses without slots after expansion: {missing_slots}", flush=True)
 
+    # ✅ Persist schedule BEFORE returning (without changing the function’s return signature)
+    try:
+        run_id = save_schedule_to_db(course_slot_map, rows, start_date, best_days, xml_file_ids)
+        print(f"🗂️ Schedule saved with run_id={run_id}", flush=True)
+    except Exception as e:
+        print(f"⚠️ Schedule persistence failed, continuing to return DataFrame. Error: {e}", flush=True)
+
     final_schedule_df = pd.DataFrame(rows)
-    print(f"✅ [schedule_exams_from_db] DONE (AM-only) in {_fmt_ms(_now_ms() - t_all)}  • rows={len(final_schedule_df)}", flush=True)
+    print(f"✅ [schedule_exams_from_db] DONE (AM-only, even indices + shrink) in {_fmt_ms(_now_ms() - t_all)}  • rows={len(final_schedule_df)}", flush=True)
     return final_schedule_df, student_to_courses, course_to_students
