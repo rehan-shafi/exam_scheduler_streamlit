@@ -2,13 +2,14 @@ from db.session import SessionLocal
 from db.models import Course, Student, CourseStudent
 from collections import defaultdict
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import timedelta
 import time
 
-# ✅ New: Static fixed slots for specified courses
+# ✅ Static fixed slots for specified courses (slot = day index; 0-based; AM only)
+# Example: "ARAB.202": 0 means Day 1 AM
 FIXED_COURSE_SLOTS = {
-    # "ARAB.202": 0,   # Arabic Editing
-    # "IC.408": 4      # Islamic Political System
+    # "ARAB.202": 0,
+    # "IC.408": 4
 }
 
 # -------------------------
@@ -22,10 +23,11 @@ def _fmt_ms(ms):
 
 
 def get_day_and_time(slot, start_date):
-    day_offset = slot // 2
-    exam_date = start_date + timedelta(days=day_offset)
-    time_label = "AM" if slot % 2 == 0 else "PM"
-    return exam_date.strftime("%Y-%m-%d"), time_label
+    """
+    With AM-only scheduling, slot == day index (0-based).
+    """
+    exam_date = start_date + timedelta(days=slot)
+    return exam_date.strftime("%Y-%m-%d"), "AM"
 
 
 def get_student_course_mappings(xml_file_ids):
@@ -43,8 +45,7 @@ def get_student_course_mappings(xml_file_ids):
     course_to_students = defaultdict(set)
     student_to_courses = defaultdict(set)
 
-    # NOTE: This is a full scan — may be slow on big tables.
-    # If possible, filter CourseStudent by joined Course/Student xml_file_ids.
+    # NOTE: full scan — consider filtering via join in future for speed
     mappings = db.query(CourseStudent).all()
     print(f"  • CourseStudent mappings fetched (unfiltered): {len(mappings)}", flush=True)
 
@@ -104,56 +105,128 @@ def apply_merged_course_mapping(course_to_students, student_to_courses):
 def build_conflict_map(student_to_courses):
     print("🧮 [build_conflict_map] start", flush=True)
     conflict_map = defaultdict(set)
-    pairs_added = 0
     for courses in student_to_courses.values():
         courses = list(courses)
         for i in range(len(courses)):
             for j in range(i + 1, len(courses)):
                 c1 = courses[i]
                 c2 = courses[j]
-                if c2 not in conflict_map[c1]:
-                    conflict_map[c1].add(c2)
-                    pairs_added += 1
-                if c1 not in conflict_map[c2]:
-                    conflict_map[c2].add(c1)
-                    pairs_added += 1
-    print(f"  • Conflict edges (undirected, counted twice above): {pairs_added}", flush=True)
+                conflict_map[c1].add(c2)
+                conflict_map[c2].add(c1)
+    edges = sum(len(v) for v in conflict_map.values())
+    print(f"  • Conflict edges (directed count): {edges}", flush=True)
     print(f"  • Nodes in conflict_map: {len(conflict_map)}", flush=True)
     print("✅ [build_conflict_map] done", flush=True)
     return conflict_map
 
 
-def backtrack_schedule(course_list, conflict_map, slot_list, fixed_slot_assignment):
-    print(f"🧠 [backtrack_schedule] Start: courses={len(course_list)} slots={len(slot_list)} fixed={len(fixed_slot_assignment)}", flush=True)
+# -------------------------
+# Fast pass: DSATUR greedy
+# -------------------------
+def _dsatur_color(course_list, conflict_map, max_colors, preferred_slots, fixed_slot_assignment):
+    """
+    DSATUR greedy coloring (using only provided preferred_slots).
+    Returns dict(course -> slot) if it fits within max_colors, else None.
+    """
+    print("⚡ [dsatur] start (AM-only)", flush=True)
+    # assignment uses actual slot ids from preferred_slots (0..num_days-1)
+    assignment = dict(fixed_slot_assignment)  # course -> slot (day index)
+
+    neighbors = {c: set(conflict_map.get(c, set())) for c in course_list}
+    degrees = {c: len(neighbors[c]) for c in course_list}
+
+    uncolored = [c for c in course_list if c not in assignment]
+
+    sat_deg = {c: 0 for c in uncolored}
+    neighbor_slots = {c: set() for c in uncolored}
+
+    # Seed saturation with fixed slots in neighbors
+    for c in uncolored:
+        seen = set()
+        for n in neighbors[c]:
+            if n in assignment:
+                seen.add(assignment[n])
+        neighbor_slots[c] = seen
+        sat_deg[c] = len(seen)
+
+    def pick_next():
+        return max(uncolored, key=lambda x: (sat_deg[x], degrees[x]))
+
+    cap = min(max_colors, len(preferred_slots))
+
+    while uncolored:
+        v = pick_next()
+
+        forbidden = neighbor_slots[v]
+        chosen_slot = None
+        # Try AM slots in the given order
+        for k in range(cap):
+            slot_id = preferred_slots[k]
+            if slot_id not in forbidden:
+                chosen_slot = slot_id
+                break
+
+        if chosen_slot is None:
+            print("⚡ [dsatur] needs more than", cap, "slots. fallback required.", flush=True)
+            return None
+
+        assignment[v] = chosen_slot
+        uncolored.remove(v)
+
+        for n in neighbors[v]:
+            if n in neighbor_slots and chosen_slot not in neighbor_slots[n]:
+                neighbor_slots[n].add(chosen_slot)
+                sat_deg[n] = len(neighbor_slots[n])
+
+    print("✅ [dsatur] success within available AM slots", flush=True)
+    return assignment
+
+
+# ------------------------------------
+# Capped backtracking (AM-only)
+# ------------------------------------
+def backtrack_schedule(course_list, conflict_map, slot_list, fixed_slot_assignment,
+                       max_ms_per_attempt=10000, max_calls_per_attempt=2_000_000):
+    print(f"🧠 [backtrack_schedule] Start: courses={len(course_list)} slots={len(slot_list)} fixed={len(fixed_slot_assignment)} (AM-only)", flush=True)
     slot_assignment = fixed_slot_assignment.copy()
+    neighbors = conflict_map  # alias
 
     def is_valid(course, slot):
-        for neighbor in conflict_map.get(course, []):
+        for neighbor in neighbors.get(course, []):
             if slot_assignment.get(neighbor) == slot:
                 return False
         return True
 
     calls = 0
     last_report = _now_ms()
+    t0 = _now_ms()
+
+    # Order courses by degree (high first)
+    order = sorted([c for c in course_list if c not in slot_assignment],
+                   key=lambda c: len(neighbors.get(c, [])),
+                   reverse=True)
 
     def backtrack(index):
         nonlocal calls, last_report
         calls += 1
 
-        # Throttled heartbeat every ~2s
+        # Caps
+        if calls > max_calls_per_attempt:
+            return False
+        if _now_ms() - t0 > max_ms_per_attempt:
+            return False
+
+        # Heartbeat
         now = _now_ms()
         if now - last_report > 2000:
             assigned = len(slot_assignment)
-            print(f"    ⏳ backtrack heartbeat: idx={index}/{len(course_list)} assigned={assigned} calls={calls}", flush=True)
+            print(f"    ⏳ backtrack heartbeat: idx={index}/{len(order)} assigned={assigned} calls={calls}", flush=True)
             last_report = now
 
-        if index == len(course_list):
+        if index == len(order):
             return True
 
-        course = course_list[index]
-        if course in slot_assignment:
-            return backtrack(index + 1)
-
+        course = order[index]
         for slot in slot_list:
             if is_valid(course, slot):
                 slot_assignment[course] = slot
@@ -162,7 +235,6 @@ def backtrack_schedule(course_list, conflict_map, slot_list, fixed_slot_assignme
                 del slot_assignment[course]
         return False
 
-    t0 = _now_ms()
     success = backtrack(0)
     print(f"🧠 [backtrack_schedule] {'SUCCESS' if success else 'FAIL'} in {_fmt_ms(_now_ms() - t0)} with {calls} calls", flush=True)
     return slot_assignment if success else None
@@ -201,19 +273,12 @@ def rebuild_course_to_students_with_names(course_to_students, course_map, course
     db = _SessionLocal()
 
     code_to_name = {code: name for _, (code, name) in course_map.items()}
-    group_to_courses = defaultdict(list)
-    for course_code, group_id in course_to_group.items():
-        group_to_courses[group_id].append(course_code)
 
     all_mappings = db.query(_CourseStudent).all()
     all_students = {s.id: s.student_id1 for s in db.query(_Student).all()}
-
-    print(f"  • CourseStudent rows: {len(all_mappings)}  • Students cached: {len(all_students)}", flush=True)
-    print("  ⚠️ This function does per-mapping Course lookup (potential N+1). Consider preloading Courses.", flush=True)
-
-    # Preload all courses into a dict to avoid N+1
     all_courses = {c.id: c for c in db.query(_Course).all()}
-    print(f"  • Courses cached: {len(all_courses)}", flush=True)
+
+    print(f"  • CourseStudent rows: {len(all_mappings)}  • Students cached: {len(all_students)}  • Courses cached: {len(all_courses)}", flush=True)
 
     rebuilt = defaultdict(set)
 
@@ -224,7 +289,6 @@ def rebuild_course_to_students_with_names(course_to_students, course_map, course
             continue
 
         course_code = course.course_code
-        # group_id = course_to_group.get(course_code)  # not used explicitly, but kept for clarity
         course_name = code_to_name.get(course_code, "Unknown Course")
 
         rebuilt[(course_code, course_name)].add(student_id)
@@ -239,10 +303,11 @@ def rebuild_course_to_students_with_names(course_to_students, course_map, course
 
 def schedule_exams_from_db(xml_file_ids, start_date, num_days):
     t_all = _now_ms()
-    print("🚀 [schedule_exams_from_db] START", flush=True)
+    print("🚀 [schedule_exams_from_db] START (AM-only)", flush=True)
 
-    total_slots = num_days * 2
-    print(f"  • num_days={num_days} total_slots={total_slots}", flush=True)
+    # AM-only ⇒ total_slots == num_days
+    total_slots = num_days
+    print(f"  • num_days={num_days} total_slots(AM-only)={total_slots}", flush=True)
 
     course_to_students, student_to_courses, course_map = get_student_course_mappings(xml_file_ids)
     print(f"  • After mapping: courses={len(course_to_students)} students={len(student_to_courses)}", flush=True)
@@ -252,10 +317,12 @@ def schedule_exams_from_db(xml_file_ids, start_date, num_days):
 
     conflict_map = build_conflict_map(student_to_courses)
 
+    # Order courses by popularity (more students → earlier)
     sorted_courses = sorted(course_to_students.items(), key=lambda x: len(x[1]), reverse=True)
     course_list = [course for course, _ in sorted_courses]
-    print(f"  • Backtracking target list size: {len(course_list)}", flush=True)
+    print(f"  • Target list size: {len(course_list)}", flush=True)
 
+    # Fixed slots (day indices)
     fixed_slot_assignment = {}
     fixed_courses_set = set()
     for course_code, slot in FIXED_COURSE_SLOTS.items():
@@ -264,32 +331,67 @@ def schedule_exams_from_db(xml_file_ids, start_date, num_days):
     if fixed_slot_assignment:
         print(f"  • Fixed slots preset: {fixed_slot_assignment}", flush=True)
 
-    backtrack_courses = [c for c in course_list if c not in fixed_courses_set]
-    print(f"  • Courses to backtrack (excl. fixed): {len(backtrack_courses)}", flush=True)
+    # Preferred slots are AM day indices only: [0..num_days-1]
+    preferred_slots = list(range(total_slots))
+    print(f"  • Preferred AM slots (day indices): {preferred_slots}", flush=True)
 
-    final_slot_assignment = None
-    am_slots = list(range(0, total_slots, 2))
-    pm_slots = list(range(1, total_slots, 2))
-    preferred_slots = am_slots + pm_slots
-    print(f"  • Preferred slots order: {preferred_slots}", flush=True)
+    # ----------------------------
+    # 1) Fast pass: DSATUR greedy
+    # ----------------------------
+    degrees = {c: len(conflict_map.get(c, set())) for c in course_list}
+    max_deg = max(degrees.values()) if degrees else 0
+    lower_bound = min(total_slots, max_deg + 1)
+    print(f"  • Degree stats: max_degree={max_deg}  → lower_bound_slots={lower_bound}", flush=True)
 
-    for slot_limit in range(7, total_slots + 1):
-        current_slot_list = preferred_slots[:slot_limit]
-        print(f"🧪 Trying with first {slot_limit} preferred slots: {current_slot_list}", flush=True)
-        t_try = _now_ms()
-        tentative_assignment = backtrack_schedule(backtrack_courses, conflict_map, current_slot_list, fixed_slot_assignment)
-        print(f"   ↪ attempt finished in {_fmt_ms(_now_ms() - t_try)}", flush=True)
-        if tentative_assignment:
-            final_slot_assignment = tentative_assignment
-            print("   ✅ Found valid assignment at slot_limit =", slot_limit, flush=True)
-            break
+    dsatur_assignment = _dsatur_color(
+        course_list,
+        conflict_map,
+        max_colors=total_slots,                # 10 max (AM-only)
+        preferred_slots=preferred_slots,
+        fixed_slot_assignment=fixed_slot_assignment
+    )
 
-    if final_slot_assignment is None:
-        print("❌ Could not find a valid schedule using backtracking.", flush=True)
-        raise Exception("❌ Could not find a valid schedule using backtracking.")
+    if dsatur_assignment is not None:
+        print("✅ Using DSATUR assignment (no backtracking needed).", flush=True)
+        course_slot_map = dsatur_assignment
+    else:
+        # ---------------------------------------
+        # 2) Fallback: capped backtracking search
+        # ---------------------------------------
+        backtrack_courses = [c for c in course_list if c not in fixed_courses_set]
+        print(f"  • Courses to backtrack (excl. fixed): {len(backtrack_courses)}", flush=True)
 
-    course_slot_map = final_slot_assignment
+        final_slot_assignment = None
+
+        # Start from realistic bound (Δ+1), but not less than 1
+        start_limit = max(lower_bound, 1)
+        print(f"  • Backtracking start_limit={start_limit} (AM-only)", flush=True)
+
+        for slot_limit in range(start_limit, total_slots + 1):
+            current_slot_list = preferred_slots[:slot_limit]
+            print(f"🧪 Trying with first {slot_limit} AM slots (days): {current_slot_list}", flush=True)
+            t_try = _now_ms()
+            tentative_assignment = backtrack_schedule(
+                backtrack_courses, conflict_map, current_slot_list, fixed_slot_assignment,
+                max_ms_per_attempt=10000,  # hard cap per attempt
+                max_calls_per_attempt=2_000_000
+            )
+            print(f"   ↪ attempt finished in {_fmt_ms(_now_ms() - t_try)}", flush=True)
+            if tentative_assignment:
+                final_slot_assignment = tentative_assignment
+                print("   ✅ Found valid assignment at slot_limit =", slot_limit, flush=True)
+                break
+
+        if final_slot_assignment is None:
+            print("❌ Could not find a valid AM-only schedule within the available days.", flush=True)
+            raise Exception("❌ Could not find a valid AM-only schedule using DSATUR or capped backtracking.")
+
+        course_slot_map = final_slot_assignment
+
+    # Expand grouped codes back to individual courses
     course_slot_map = expand_grouped_course_slots(course_slot_map, group_map, course_map)
+
+    # Rebuild student mappings with names
     course_to_students = rebuild_course_to_students_with_names(course_to_students, course_map, course_to_group)
 
     db = SessionLocal()
@@ -313,7 +415,7 @@ def schedule_exams_from_db(xml_file_ids, start_date, num_days):
                 "Course Code": course_code,
                 "Course Name": course_name,
                 "Day": day,
-                "Time": time_label,
+                "Time": time_label,  # always "AM"
                 "Slot #": slot if slot is not None else "N/A"
             })
 
@@ -321,5 +423,5 @@ def schedule_exams_from_db(xml_file_ids, start_date, num_days):
         print(f"  ⚠️ Courses without slots after expansion: {missing_slots}", flush=True)
 
     final_schedule_df = pd.DataFrame(rows)
-    print(f"✅ [schedule_exams_from_db] DONE in {_fmt_ms(_now_ms() - t_all)}  • rows={len(final_schedule_df)}", flush=True)
+    print(f"✅ [schedule_exams_from_db] DONE (AM-only) in {_fmt_ms(_now_ms() - t_all)}  • rows={len(final_schedule_df)}", flush=True)
     return final_schedule_df, student_to_courses, course_to_students
